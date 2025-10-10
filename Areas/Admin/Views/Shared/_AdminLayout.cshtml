@@ -1,0 +1,38 @@
+@* Admin Layout *@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng quản trị - @ViewBag.Title</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/admin.css" />
+</head>
+<body>
+    <header class="p-3 bg-dark text-white d-flex justify-content-between align-items-center">
+        <h4 class="m-0">Bảng quản trị</h4>
+        <div>
+            <a href="/Account/Logout" class="btn btn-outline-light btn-sm">Đăng xuất</a>
+        </div>
+    </header>
+    <div class="d-flex">
+        <aside class="bg-secondary text-white p-3" style="width:250px;min-height:100vh;">
+            <h5>Menu</h5>
+            <a href="/Admin/Home" class="d-block text-white">Trang chủ</a>
+            <a href="/Admin/Product" class="d-block text-white">Quản lý sản phẩm</a>
+            <a href="/Admin/Users" class="d-block text-white">Quản lý người dùng</a>
+            <hr />
+            <h6>Bộ lọc</h6>
+            <input type="text" class="form-control mb-2" placeholder="Tìm kiếm..." />
+            <select class="form-select">
+                <option>Tất cả</option>
+                <option>Đang bán</option>
+                <option>Hết hàng</option>
+            </select>
+        </aside>
+        <main class="p-4 flex-grow-1">
+            @RenderBody()
+        </main>
+    </div>
+</body>
+</html>

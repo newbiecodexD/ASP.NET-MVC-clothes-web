@@ -1,0 +1,5 @@
+body { font-family: 'Times New Roman', sans-serif; background-color: #f8f9fa; }
+aside a { text-decoration: none; margin-bottom:4px; }
+aside a:hover { text-decoration: underline; }
+main h1 { margin-bottom: 20px; }
+.card { border-radius: 8px; }

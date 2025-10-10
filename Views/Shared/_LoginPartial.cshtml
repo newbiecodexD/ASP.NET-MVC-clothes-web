@@ -1,0 +1,28 @@
+﻿@using Microsoft.AspNet.Identity
+@if (Request.IsAuthenticated)
+{
+    using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
+    {
+    @Html.AntiForgeryToken()
+
+    <ul class="navbar-nav navbar-right">
+        <li class="nav-item me-2">
+            <a href="@Url.Action("Index","Cart")" class="nav-link d-flex align-items-center" title="Giỏ hàng">
+                <i class="bi bi-cart" style="font-size:1.1rem;margin-right:5px;"></i>
+                <span>Giỏ hàng</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            @Html.ActionLink("Xin chào " + User.Identity.GetUserName() + "!", "Index", "Manage", routeValues: null, htmlAttributes: new { title = "Quản lý", @class="nav-link" })
+        </li>
+        <li class="nav-item"><a class="nav-link" href="javascript:document.getElementById('logoutForm').submit()">Đăng xuất</a></li>
+    </ul>
+    }
+}
+else
+{
+    <ul class="navbar-nav navbar-right">
+        <li class="nav-item">@Html.ActionLink("Đăng ký", "Register", "Account", routeValues: null, htmlAttributes: new { id = "registerLink", @class="nav-link" })</li>
+        <li class="nav-item">@Html.ActionLink("Đăng nhập", "Login", "Account", routeValues: null, htmlAttributes: new { id = "loginLink", @class="nav-link" })</li>
+    </ul>
+}

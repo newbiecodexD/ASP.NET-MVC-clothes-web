@@ -1,0 +1,35 @@
+@model IEnumerable<(string Email,string Password)>
+@{
+    ViewBag.Title = "Qu?n lý ng??i dùng";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+<h1 class="h4 mb-3">Qu?n lý ng??i dùng (In-Memory)</h1>
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>Email</th>
+            <th>M?t kh?u (plain)</th>
+            <th style="width:220px;">Hành ??ng</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var u in Model)
+    {
+        <tr>
+            <td>@u.Email</td>
+            <td>@u.Password</td>
+            <td>
+                <form method="post" action="@Url.Action("ResetPassword")" class="d-inline" style="width:200px;">
+                    <input type="hidden" name="email" value="@u.Email" />
+                    <input type="text" name="newPassword" class="form-control form-control-sm mb-1" placeholder="M?t kh?u m?i" />
+                    <button class="btn btn-sm btn-warning" type="submit">??t l?i</button>
+                </form>
+                <form method="post" action="@Url.Action("Delete")" class="d-inline" onsubmit="return confirm('Xóa user này?');">
+                    <input type="hidden" name="email" value="@u.Email" />
+                    <button class="btn btn-sm btn-danger">Xóa</button>
+                </form>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

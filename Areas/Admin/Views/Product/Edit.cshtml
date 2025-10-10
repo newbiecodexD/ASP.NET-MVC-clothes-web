@@ -1,0 +1,25 @@
+@model web_quanao.Areas.Admin.Controllers.ProductController.ProductVm
+@{
+    ViewBag.Title = "S?a s?n ph?m";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+<h1 class="h4 mb-3">S?a s?n ph?m</h1>
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m=>m.Id)
+    <div class="mb-3">
+        <label class="form-label">Tên</label>
+        @Html.TextBoxFor(m=>m.Name, new { @class="form-control" })
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Giá</label>
+        @Html.TextBoxFor(m=>m.Price, new { @class="form-control", type="number", step="1000" })
+    </div>
+    <div class="mb-3">
+        <label class="form-label">T?n kho</label>
+        @Html.TextBoxFor(m=>m.Stock, new { @class="form-control", type="number" })
+    </div>
+    <button class="btn btn-primary">C?p nh?t</button>
+    <a href="@Url.Action("Index")" class="btn btn-secondary">H?y</a>
+}

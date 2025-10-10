@@ -1,0 +1,16 @@
+@model web_quanao.Areas.Admin.Controllers.ProductController.ProductVm
+@{
+    ViewBag.Title = "Xóa s?n ph?m";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+<h1 class="h4 mb-3 text-danger">Xóa s?n ph?m</h1>
+<div class="alert alert-warning">
+    B?n có ch?c mu?n xóa: <strong>@Model.Name</strong> (ID: @Model.Id)?
+</div>
+@using (Html.BeginForm("Delete","Product", FormMethod.Post, new { @class="mt-2" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m=>m.Id)
+    <button class="btn btn-danger">Xóa</button>
+    <a href="@Url.Action("Index")" class="btn btn-secondary">H?y</a>
+}

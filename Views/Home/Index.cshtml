@@ -1,0 +1,23 @@
+﻿@{
+    ViewBag.Title = "Trang chủ";
+    Layout = "~/Views/Shared/_LayoutHome.cshtml";
+}
+
+<div class="home-hero">
+    <div class="overlay text-center">
+        <h1 class="display-4">UNIQLO</h1>
+        <p class="lead">Thời trang đơn giản - Chất lượng - Thoải mái mỗi ngày</p>
+        @if (!Request.IsAuthenticated) {
+            <p><a href="@Url.Action("Register", "Account")" class="btn btn-primary btn-lg me-2">Bắt đầu ngay</a>
+               <a href="@Url.Action("Login", "Account")" class="btn btn-outline-light btn-lg">Đăng nhập</a></p>
+        } else {
+            <p><a href="@Url.Action("Index", "Manage")" class="btn btn-success btn-lg">Tài khoản của tôi</a></p>
+        }
+    </div>
+</div>
+
+<div class="mt-5">
+    <h2>Sản phẩm mới</h2>
+    <p>Nội dung giới thiệu sẽ cập nhật sau...</p>
+</div>
+
