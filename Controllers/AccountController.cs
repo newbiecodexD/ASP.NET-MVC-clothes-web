@@ -78,24 +78,30 @@ namespace web_quanao.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public ActionResult Login(string email, string password, bool? rememberMe, string returnUrl)
+        public async Task<ActionResult> Login(LoginViewModel model, string returnUrl)
         {
-            // Admin short-circuit
-            if (string.Equals(email, AdminEmail, StringComparison.OrdinalIgnoreCase) && password == AdminPassword)
+            if (!ModelState.IsValid) return View(model);
+
+            // Lối tắt admin (không DB)
+            if (string.Equals(model.Email, AdminEmail, StringComparison.OrdinalIgnoreCase) && model.Password == AdminPassword)
             {
                 SignInAdmin();
                 return RedirectToAction("Index", "Home", new { area = "Admin" });
             }
 
-            // Fallback to regular in-memory user store
-            if (InMemoryAuthStore.Validate(email, password))
+            // TẠM THỜI tắt đăng nhập qua ASP.NET Identity để tránh truy vấn DB
+            // var result = await SignInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, shouldLockout: false);
+            // switch (result) { ... }
+
+            // Đăng nhập qua InMemoryAuthStore (demo)
+            if (InMemoryAuthStore.Validate(model.Email, model.Password))
             {
-                SignInInMemory(email, rememberMe ?? false);
-                return RedirectToAction("Index", "Home");
+                SignInInMemory(model.Email, model.RememberMe);
+                return RedirectToLocal(returnUrl);
             }
 
-            ViewBag.Error = "Sai tài khoản hoặc mật khẩu";
-            return View();
+            ModelState.AddModelError("", "Sai tài khoản hoặc mật khẩu");
+            return View(model);
         }
 
         [AllowAnonymous]

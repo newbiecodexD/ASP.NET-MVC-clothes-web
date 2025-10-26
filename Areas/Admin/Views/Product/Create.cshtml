@@ -1,24 +1,38 @@
-@model web_quanao.Areas.Admin.Controllers.ProductController.ProductVm
+﻿@model web_quanao.Areas.Admin.Controllers.ProductController.ProductVm
 @{
-    ViewBag.Title = "Th�m s?n ph?m";
+    ViewBag.Title = "Thêm sản phẩm";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
-<h1 class="h4 mb-3">Th�m s?n ph?m</h1>
-@using (Html.BeginForm())
-{
-    @Html.AntiForgeryToken()
-    <div class="mb-3">
-        <label class="form-label">T�n</label>
-        @Html.TextBoxFor(m=>m.Name, new { @class="form-control" })
+
+<h1 class="h3 mb-3">Thêm sản phẩm mới</h1>
+
+<div class="card">
+    <div class="card-body">
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+            <div class="mb-3">
+                <label class="form-label">Tên sản phẩm</label>
+                @Html.TextBoxFor(m => m.Name, new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.Name, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Giá</label>
+                @Html.TextBoxFor(m => m.Cost, new { @class = "form-control", type = "number", step = "1000" })
+                @Html.ValidationMessageFor(m => m.Cost, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Số lượng</label>
+                @Html.TextBoxFor(m => m.Quantity, new { @class = "form-control", type = "number" })
+                @Html.ValidationMessageFor(m => m.Quantity, "", new { @class = "text-danger" })
+            </div>
+
+            <button type="submit" class="btn btn-primary">Lưu</button>
+            <a href="@Url.Action("Index")" class="btn btn-secondary">Hủy</a>
+        }
     </div>
-    <div class="mb-3">
-        <label class="form-label">Gi�</label>
-        @Html.TextBoxFor(m=>m.Price, new { @class="form-control", type="number", step="1000" })
-    </div>
-    <div class="mb-3">
-        <label class="form-label">T?n kho</label>
-        @Html.TextBoxFor(m=>m.Stock, new { @class="form-control", type="number" })
-    </div>
-    <button class="btn btn-primary">L?u</button>
-    <a href="@Url.Action("Index")" class="btn btn-secondary">H?y</a>
-}
+</div>
