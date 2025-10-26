@@ -1,0 +1,100 @@
+﻿@{
+    ViewBag.Title = "Lịch sử mua hàng";
+    Layout = "~/Views/Shared/_LayoutCart.cshtml";
+}
+
+<section class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="mb-0">Lịch sử mua hàng</h1>
+        <a href="@Url.Action("Index","Cart")" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Quay về giỏ hàng
+        </a>
+    </div>
+
+    <div id="historyContainer" class="row g-3"></div>
+
+    <template id="orderCardTpl">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-bold">Mã đơn: <span data-field="id"></span></div>
+                            <div class="text-muted small">Ngày: <span data-field="date"></span> | Phương thức: <span data-field="method"></span></div>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold">Tổng: <span data-field="total"></span> ₫</div>
+                        </div>
+                    </div>
+                    <hr/>
+                    <div data-field="items"></div>
+                </div>
+            </div>
+        </div>
+    </template>
+</section>
+
+@section Scripts{
+<script>
+(function(){
+    function fmt(n){ return (n||0).toLocaleString('vi-VN'); }
+    function mapMethodText(method, methodText){
+        if (methodText && methodText.trim().length) return methodText;
+        var m = (method||'').toString().toUpperCase();
+        if (m === 'MOMO') return 'MoMo';
+        if (m === 'BANK' || m === 'CHUYENKHOAN' || m === 'TRANSFER') return 'Chuyển khoản ngân hàng';
+        return method || '';
+    }
+    function sanitizeName(name){
+        var s = (name||'').toString().trim();
+        if (!s.length) return 'Sản phẩm';
+        if (/web_quanao\.[\w\.]+/i.test(s)) return 'Sản phẩm';
+        return s;
+    }
+    function loadHistory(){
+        var list = [];
+        try{ list = JSON.parse(localStorage.getItem('orderHistory')||'[]'); }catch(e){ list = []; }
+        var $c = $('#historyContainer');
+        $c.empty();
+        if(!list.length){
+            $c.append('<div class="col-12 text-center text-muted">Chưa có đơn hàng.</div>');
+            return;
+        }
+        // Normalize dữ liệu cũ (tên sản phẩm, phương thức) và lưu lại
+        var changed = false;
+        list.forEach(function(o){
+            var newMethodText = mapMethodText(o.method, o.methodText);
+            if (newMethodText !== o.methodText){ o.methodText = newMethodText; changed = true; }
+            if (Array.isArray(o.items)){
+                o.items.forEach(function(x){
+                    var n = sanitizeName(x && x.name);
+                    if (x && n !== x.name){ x.name = n; changed = true; }
+                });
+            }
+        });
+        if (changed){
+            try { localStorage.setItem('orderHistory', JSON.stringify(list)); } catch(e){}
+        }
+        list.sort(function(a,b){ return (new Date(b.date))-(new Date(a.date)); });
+        var tpl = document.getElementById('orderCardTpl');
+        list.forEach(function(o){
+            var node = tpl.content.cloneNode(true);
+            $(node).find('[data-field="id"]').text(o.id);
+            $(node).find('[data-field="date"]').text(new Date(o.date).toLocaleString('vi-VN'));
+            $(node).find('[data-field="method"]').text(mapMethodText(o.method, o.methodText));
+            $(node).find('[data-field="total"]').text(fmt(o.total));
+            var $items = $(node).find('[data-field="items"]');
+            if(o.items && o.items.length){
+                var html = '<ul class="list-group list-group-flush">' + o.items.map(function(x){
+                    return '<li class="list-group-item d-flex justify-content-between"><span>'+ sanitizeName(x && x.name) +' x '+ (x && x.qty || 1) +'</span><span>'+ fmt(x && x.total || 0) +' ₫</span></li>';
+                }).join('') + '</ul>';
+                $items.html(html);
+            }
+            $c.append(node);
+        });
+    }
+
+    loadHistory();
+})();
+</script>
+}

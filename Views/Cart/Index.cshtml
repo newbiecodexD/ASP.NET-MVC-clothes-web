@@ -1,119 +1,272 @@
 ﻿@model web_quanao.Core.Entities.Cart
 @{
     ViewBag.Title = "Giỏ hàng";
-    Layout = "~/Views/Shared/_LayoutHome.cshtml";
-    var demoProducts = ViewBag.DemoProducts as (int id, string name, decimal price)[];
+    Layout = "~/Views/Shared/_LayoutCart.cshtml";
 }
-<h2>Giỏ hàng</h2>
 
-@if (demoProducts != null)
-{
-    <div class="mb-4">
-        <h4>Thêm nhanh sản phẩm demo</h4>
-        @foreach (var p in demoProducts)
-        {
-            <button class="btn btn-sm btn-outline-light me-2 mb-2 add-demo"
-                    data-id="@p.id"
-                    data-name="@p.name"
-                    data-price="@p.price">
-                @p.name (@p.price.ToString("N0"))
-            </button>
-        }
+<style>
+    .cart-header { display:flex; align-items:center; justify-content:space-between; margin-bottom: 1rem; }
+    .cart-header h2 { margin:0; }
+    .cart-table th, .cart-table td { vertical-align: middle; }
+    .qty-wrap { display:flex; align-items:center; gap:.375rem; justify-content:center; }
+    .qty-wrap .btn { width:36px; height:36px; padding:0; line-height:1; }
+    .qty-wrap .qty { width:70px; text-align:center; }
+    .cart-summary { position: sticky; top: 1rem; }
+    .currency { white-space: nowrap; }
+    .empty-cart { text-align:center; padding: 40px 0; color:#6c757d; }
+    /* loại bỏ khu vực thêm nhanh demo */
+    .table tfoot th { background:#f8f9fa; }
+    .text-end { text-align:right; }
+    .text-center { text-align:center; }
+    .w-100 { width:100%; }
+    .btn-remove i{ pointer-events:none; }
+    .card-title{ margin-bottom:1rem; }
+    .gap-2{ gap:.5rem; }
+    .gap-3{ gap:1rem; }
+</style>
+
+<div class="container py-3">
+    <div class="cart-header">
+        <h2>Giỏ hàng của bạn</h2>
     </div>
-}
 
-@if (Model == null || Model.Items == null || !Model.Items.Any())
-{
-    <p>Giỏ hàng trống.</p>
-}
-else
-{
-    <table class="table table-striped table-bordered align-middle table-dark">
-        <thead>
-            <tr>
-                <th>Sản phẩm</th>
-                <th>Số lượng</th>
-                <th>Đơn giá</th>
-                <th>Thành tiền</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.Items)
-            {
-                var price = item.Product?.DiscountPrice ?? item.Product?.Price ?? 0m;
-                <tr data-item-id="@item.CartItemId">
-                    <td>@item.Product?.ProductName</td>
-                    <td style="width:160px;">
-                        <div class="input-group">
-                            <input type="number" class="form-control qty" value="@item.Quantity" min="1" />
-                            <span class="input-group-btn">
-                                <button class="btn btn-outline-secondary btn-update" type="button">Cập nhật</button>
-                            </span>
+    @if (Model == null || Model.Items == null || !Model.Items.Any())
+    {
+        <div class="empty-cart">
+            <p>Giỏ hàng trống.</p>
+            <a href="@Url.Action("Index","Home")" class="btn btn-primary">Tiếp tục mua sắm</a>
+        </div>
+    }
+    else
+    {
+        <div class="row gap-3">
+            <div class="col-lg-8">
+                <table class="table table-striped table-bordered align-middle cart-table">
+                    <thead class="table-dark">
+                        <tr>
+                            <th style="width:45%;">Sản phẩm</th>
+                            <th class="text-end" style="width:15%;">Đơn giá</th>
+                            <th class="text-center" style="width:25%;">Số lượng</th>
+                            <th class="text-end" style="width:15%;">Thành tiền</th>
+                            <th style="width:5%;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            var price = item.Product?.DiscountPrice ?? item.Product?.Price ?? 0m;
+                            <tr data-item-id="@item.CartItemId" data-name="@((item.Product != null ? item.Product.ProductName : "Sản phẩm"))">
+                                <td>@(item.Product != null ? item.Product.ProductName : "Sản phẩm")</td>
+                                <td class="unit-price text-end currency" data-price="@price">@String.Format("{0:N0}", price)</td>
+                                <td class="text-center">
+                                    <div class="qty-wrap">
+                                        <button class="btn btn-outline-secondary btn-qty btn-minus" type="button" aria-label="Giảm">-</button>
+                                        <input type="number" class="form-control qty" value="@item.Quantity" min="1" />
+                                        <button class="btn btn-outline-secondary btn-qty btn-plus" type="button" aria-label="Tăng">+</button>
+                                    </div>
+                                </td>
+                                <td class="line-total text-end currency">@String.Format("{0:N0}", price * item.Quantity)</td>
+                                <td class="text-center">
+                                    <button class="btn btn-danger btn-sm btn-remove" title="Xóa">Xóa</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="3" class="text-end">Tổng</th>
+                            <th id="cart-total" class="text-end currency">@String.Format("{0:N0}", (decimal)ViewBag.Total)</th>
+                            <th></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="col-lg-3">
+                <div class="card cart-summary">
+                    <div class="card-body">
+                        <h5 class="card-title">Tóm tắt đơn hàng</h5>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Tạm tính</span>
+                            <strong id="cart-total-side" class="currency">@String.Format("{0:N0}", (decimal)ViewBag.Total)</strong>
                         </div>
-                    </td>
-                    <td>@price.ToString("N0")</td>
-                    <td class="line-total">@(price * item.Quantity).ToString("N0")</td>
-                    <td><button class="btn btn-danger btn-sm btn-remove">Xóa</button></td>
-                </tr>
-            }
-        </tbody>
-        <tfoot>
-            <tr>
-                <th colspan="3" class="text-end">Tổng</th>
-                <th id="cart-total">@((decimal)ViewBag.Total).ToString("N0")</th>
-                <th></th>
-            </tr>
-        </tfoot>
-    </table>
-}
+                        <div class="d-grid gap-2 mt-3">
+                            <a href="@Url.Action("Index","Home")" class="btn btn-outline-secondary">Tiếp tục mua sắm</a>
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#checkoutModal">Thanh toán</button>
+                            <a href="@Url.Action("History","Order")" class="btn btn-link">Lịch sử mua hàng</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Modal thanh toán -->
+<div class="modal fade" id="checkoutModal" tabindex="-1" aria-labelledby="checkoutModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="checkoutModalLabel">Chọn phương thức thanh toán</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+            <div class="form-check">
+                <input class="form-check-input pay-method" type="radio" name="payMethod" id="payBank" value="BANK" checked>
+                <label class="form-check-label" for="payBank">Chuyển khoản ngân hàng</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input pay-method" type="radio" name="payMethod" id="payMomo" value="MOMO">
+                <label class="form-check-label" for="payMomo">Ví MoMo</label>
+            </div>
+        </div>
+
+        <div id="qrPreview" class="text-center">
+            <img id="qrImage" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=BANK" alt="QR" class="img-fluid rounded border">
+            <div class="mt-2 text-muted small">Quét QR để thanh toán. Tổng tiền: <strong id="checkoutTotal">@String.Format("{0:N0}", (decimal)(ViewBag.Total ?? 0m))</strong> ₫</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Đóng</button>
+        <button type="button" id="btnConfirmPayment" class="btn btn-primary">Xác nhận thanh toán</button>
+      </div>
+    </div>
+  </div>
+ </div>
 
 @section scripts {
-    <script>
+<script>
 (function(){
-    function refreshTotal(){
-        var total = 0;
-        $('td.line-total').each(function(){
-            var v = $(this).text().replace(/[^0-9]/g,'');
-            total += parseInt(v || '0');
-        });
-        $('#cart-total').text(total.toLocaleString());
+    function parseCurrency(text){ return parseInt(String(text).replace(/[^0-9]/g,'')) || 0; }
+    function formatCurrency(num){ return (num||0).toLocaleString('vi-VN'); }
+
+    function recalcRow($row){
+        var price = parseCurrency($row.find('.unit-price').text());
+        var qty = parseInt($row.find('input.qty').val());
+        if(isNaN(qty) || qty < 1) qty = 1;
+        var line = price * qty;
+        $row.find('.line-total').text(formatCurrency(line));
+        return line;
     }
 
-    $('.btn-update').click(function(){
-        var row = $(this).closest('tr');
-        var id = row.data('item-id');
-        var qty = parseInt(row.find('input.qty').val());
-        if(qty <= 0) qty = 1;
-        $.post('@Url.Action("Update","Cart")', { cartItemId:id, quantity:qty }, function(r){
-            if(r.success){
-                var priceText = row.find('td').eq(2).text().replace(/[^0-9]/g,'');
-                var price = parseInt(priceText || '0');
-                row.find('.line-total').text((price * qty).toLocaleString());
-                refreshTotal();
-            }
+    function recalcTotal(){
+        var total = 0;
+        $('tbody tr[data-item-id]').each(function(){
+            total += parseCurrency($(this).find('.line-total').text());
         });
+        $('#cart-total, #cart-total-side').text(formatCurrency(total));
+    }
+
+    function serverUpdate($row, qty){
+        var id = $row.data('item-id');
+        return $.post('@Url.Action("Update","Cart")', { cartItemId:id, quantity:qty });
+    }
+
+    function serverRemove($row){
+        var id = $row.data('item-id');
+        return $.post('@Url.Action("Remove","Cart")', { cartItemId:id });
+    }
+
+    // +/- buttons
+    $(document).on('click', '.btn-plus', function(){
+        var $row = $(this).closest('tr');
+        var $qty = $row.find('input.qty');
+        var qty = (parseInt($qty.val())||1) + 1;
+        $qty.val(qty);
+        serverUpdate($row, qty).done(function(r){ if(r && r.success){ recalcRow($row); recalcTotal(); }});
     });
 
-    $('.btn-remove').click(function(){
-        var row = $(this).closest('tr');
-        var id = row.data('item-id');
-        $.post('@Url.Action("Remove","Cart")', { cartItemId:id }, function(r){
-            if(r.success){
-                row.remove();
-                refreshTotal();
-            }
-        });
+    $(document).on('click', '.btn-minus', function(){
+        var $row = $(this).closest('tr');
+        var $qty = $row.find('input.qty');
+        var qty = (parseInt($qty.val())||1) - 1; if(qty < 1) qty = 1;
+        $qty.val(qty);
+        serverUpdate($row, qty).done(function(r){ if(r && r.success){ recalcRow($row); recalcTotal(); }});
     });
 
-    $('.add-demo').click(function(){
-        var id = $(this).data('id');
-        $.post('@Url.Action("Add","Cart")', { productId:id, quantity:1 }, function(r){
-            if(r.success){
-                location.reload();
-            }
-        });
+    // Manual change
+    $(document).on('change', 'input.qty', function(){
+        var $row = $(this).closest('tr');
+        var qty = parseInt($(this).val()); if(isNaN(qty) || qty < 1) qty = 1; $(this).val(qty);
+        serverUpdate($row, qty).done(function(r){ if(r && r.success){ recalcRow($row); recalcTotal(); }});
     });
+
+    // Remove
+    $(document).on('click', '.btn-remove', function(){
+        var $row = $(this).closest('tr');
+        serverRemove($row).done(function(r){ if(r && r.success){ $row.remove(); recalcTotal(); }});
+    });
+
+    function regenQr(){
+        var method = $('input[name="payMethod"]:checked').val();
+        var total = parseCurrency($('#cart-total').text());
+        var payload = (method === 'MOMO' ? 'MoMo' : 'BANK') + ';SoTien=' + total + ';DonHang=TAM';
+        $('#checkoutTotal').text(formatCurrency(total));
+        $('#qrImage').attr('src', 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' + encodeURIComponent(payload));
+    }
+    // Đổi QR theo phương thức
+    $(document).on('change', '.pay-method', regenQr);
+    // Khi mở modal, cập nhật tổng và QR
+    $('#checkoutModal').on('shown.bs.modal', function(){ regenQr(); });
+
+    // Xác nhận thanh toán (demo): lưu order vào localStorage và chuyển lịch sử
+    $('#btnConfirmPayment').on('click', function(){
+        // Thu thập dữ liệu giỏ hàng hiện tại từ bảng
+        var items = [];
+        $('tbody tr[data-item-id]').each(function(){
+            var $row = $(this);
+            var name = ($row.data('name') || ($row.find('td').eq(0).text()||'')).toString().trim();
+            var unit = parseCurrency($row.find('.unit-price').text());
+            var qty = parseInt($row.find('input.qty').val())||1;
+            items.push({ name: name, price: unit, qty: qty, total: unit*qty });
+        });
+        var total = parseCurrency($('#cart-total').text());
+        var method = $('input[name="payMethod"]:checked').val();
+        var methodText = (method === 'MOMO') ? 'MoMo' : 'Chuyển khoản ngân hàng';
+        var order = {
+            id: 'DH-' + (new Date().getTime()),
+            date: new Date().toISOString(),
+            method: method,
+            methodText: methodText,
+            total: total,
+            items: items
+        };
+        // Lưu LocalStorage
+        var history = [];
+        try { history = JSON.parse(localStorage.getItem('orderHistory')||'[]'); } catch(e){ history = []; }
+        history.push(order);
+        localStorage.setItem('orderHistory', JSON.stringify(history));
+
+        // Có thể xóa giỏ hàng localStorage (nếu dùng)
+        try { localStorage.setItem('cart','[]'); } catch(e){}
+
+        // Thông báo + âm báo
+        var beep = document.getElementById('notifySound');
+        if (beep && beep.play) { try { beep.play(); } catch(e){} }
+        if (window.Swal){
+            Swal.fire({ 
+                icon:'success', 
+                title:'Thanh toán thành công!', 
+                text:'Đơn hàng của bạn đã được ghi nhận', 
+                timer:1600, 
+                showConfirmButton:false,
+                didOpen: function(){ if (beep){ try { beep.currentTime = 0; beep.play(); } catch(e){} } }
+            })
+            .then(function(){ window.location = '@Url.Action("History","Order")'; });
+        } else {
+            alert('Đơn hàng đã thanh toán thành công!');
+            window.location = '@Url.Action("History","Order")';
+        }
+
+        // Dọn UI giỏ hàng (client) để hiển thị trống khi quay lại
+        try {
+            $('tbody').empty();
+            $('#cart-total, #cart-total-side').text('0');
+        } catch(e){}
+    });
+
+    // Khởi tạo tổng tiền khi tải trang
+    $(function(){ recalcTotal(); regenQr(); });
 })();
-    </script>
+</script>
 }

@@ -1,23 +1,113 @@
-﻿@{
+﻿@* Khai báo model cho View *@
+@model IEnumerable<web_quanao.Models.ProductViewModel>
+@{
     ViewBag.Title = "Trang chủ";
     Layout = "~/Views/Shared/_LayoutHome.cshtml";
 }
 
-<div class="home-hero">
-    <div class="overlay text-center">
-        <h1 class="display-4">UNIQLO</h1>
-        <p class="lead">Thời trang đơn giản - Chất lượng - Thoải mái mỗi ngày</p>
-        @if (!Request.IsAuthenticated) {
-            <p><a href="@Url.Action("Register", "Account")" class="btn btn-primary btn-lg me-2">Bắt đầu ngay</a>
-               <a href="@Url.Action("Login", "Account")" class="btn btn-outline-light btn-lg">Đăng nhập</a></p>
-        } else {
-            <p><a href="@Url.Action("Index", "Manage")" class="btn btn-success btn-lg">Tài khoản của tôi</a></p>
-        }
+@section Styles {
+    <link rel="stylesheet" href="@Url.Content("~/Content/HomeCSS/index.css")" />
+}
+
+@section Banner {
+    <div class="home-hero">
+        <div class="overlay text-center">
+            <h1 class="display-4">UNIQLO</h1>
+            <p class="lead">Thời trang đơn giản - Chất lượng - Thoải mái mỗi ngày</p>
+            @if (!Request.IsAuthenticated)
+            {
+                <p>
+                    <a href="@Url.Action("Register", "Account")" class="btn btn-primary btn-lg me-2">Bắt đầu ngay</a>
+                    <a href="@Url.Action("Login", "Account")" class="btn btn-outline-light btn-lg">Đăng nhập</a>
+                </p>
+            }
+            else
+            {
+                <p class="lead">Chào mừng bạn trở lại!</p>
+            }
+        </div>
+    </div>
+}
+
+@section Slideshow { }
+
+<div class="row">
+    <div class="col-lg-3">
+        <div class="card sticky-top" style="top: 20px;">
+            <div class="card-header"><h5 class="mb-0">Bộ lọc & Sắp xếp</h5></div>
+            <div class="card-body">
+                <form id="filterForm">
+                    <div class="mb-4">
+                        <h6>Giới tính</h6>
+                        <div class="form-check"><input class="form-check-input filter-control" type="radio" name="gender" id="genderAny" value="Any" checked><label class="form-check-label" for="genderAny">Tất cả</label></div>
+                        <div class="form-check"><input class="form-check-input filter-control" type="radio" name="gender" id="genderMale" value="Nam"><label class="form-check-label" for="genderMale">Nam</label></div>
+                        <div class="form-check"><input class="form-check-input filter-control" type="radio" name="gender" id="genderFemale" value="Nữ"><label class="form-check-label" for="genderFemale">Nữ</label></div>
+                    </div>
+                    <div class="mb-4">
+                        <h6>Giá tiền</h6>
+                        <select class="form-select filter-control" id="priceRange">
+                            <option value="all" selected>Tất cả mức giá</option>
+                            <option value="lt200">Dưới 200,000đ</option>
+                            <option value="200to500">200,000đ - 500,000đ</option>
+                            <option value="gt500">Trên 500,000đ</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <h6>Sắp xếp</h6>
+                        <select id="sortOptions" class="form-select filter-control" aria-label="Sắp xếp sản phẩm">
+                            <option value="default" selected>Mặc định</option>
+                            <option value="price_asc">Giá tăng dần</option>
+                            <option value="price_desc">Giá giảm dần</option>
+                            <option value="newest">Mới nhất</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-9" id="productListContainer" data-add-to-cart-url="@Url.Action("Add", "Cart")">
+        <div class="row">
+            @if (Model != null && Model.Any())
+            {
+                foreach (var product in Model)
+                {
+                    <div class="col-sm-6 col-lg-4 mb-4 product-card"
+                         data-price="@product.Price"
+                         data-gender="@(product.Gender ?? "Any")"
+                         data-id="@product.Id">
+
+                        <div class="card h-100 product-card-inner">
+                            <a href="@Url.Action("Details", "Product", new { id = product.Id })">
+                                <img src="@product.ImageUrl" class="card-img-top" alt="@product.Name">
+                            </a>
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title">
+                                    <a href="@Url.Action("Details", "Product", new { id = product.Id })" class="text-dark text-decoration-none">@product.Name</a>
+                                </h5>
+                                <p class="card-text small text-muted">@product.Description</p>
+                                <p class="card-text fw-bold mt-auto">@product.Price.ToString("N0")đ</p>
+                            </div>
+                            <div class="card-footer bg-white border-0 text-center pb-3">
+                                <button type="button" class="btn btn-dark w-100 btn-add-cart" data-productid="@product.Id">Thêm vào giỏ hàng</button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-12"><p>Không có sản phẩm nào để hiển thị.</p></div>
+            }
+
+            <div id="noResultsMessage" class="col-12 text-center" style="display: none;">
+                <p class="fs-4 text-muted">Không tìm thấy sản phẩm phù hợp.</p>
+            </div>
+        </div>
     </div>
 </div>
 
-<div class="mt-5">
-    <h2>Sản phẩm mới</h2>
-    <p>Nội dung giới thiệu sẽ cập nhật sau...</p>
-</div>
-
+@section Scripts {
+    @using (Html.BeginForm("","",FormMethod.Post, new { id = "__AjaxAntiForgeryForm" })) { @Html.AntiForgeryToken() }
+    <script src="~/Content/home-logic.js"></script>
+}

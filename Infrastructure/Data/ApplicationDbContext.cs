@@ -8,11 +8,11 @@ namespace web_quanao.Infrastructure.Data
     {
         static ApplicationDbContext()
         {
-            // Apply pending migrations automatically (development scenario)
-            Database.SetInitializer(new MigrateDatabaseToLatestVersion<ApplicationDbContext, web_quanao.Migrations.Configuration>());
+            // Migrations will be run explicitly via Update-Database
+            Database.SetInitializer<ApplicationDbContext>(null);
         }
 
-        public ApplicationDbContext() : base("DefaultConnection") { }
+        public ApplicationDbContext() : base("UniqloDBContext") { }
 
         public static ApplicationDbContext Create() => new ApplicationDbContext();
 

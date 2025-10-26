@@ -4,41 +4,346 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewBag.Title - UNIQLO</title>
-    @Styles.Render("~/Content/css")
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
-    @Scripts.Render("~/bundles/modernizr")
+    @* Thay thế bundle cũ bằng CDN cho Bootstrap 5 và Bootstrap Icons để phù hợp với giao diện mới *@
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background-color: red; /* Thêm màu nền nhẹ cho body */
+        }
+
+        /* Container chính để giữ footer ở dưới cùng */
+        .page-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ==================== CSS CHO HEADER (top-container) ==================== */
+        .top-container {
+            display: grid;
+            grid-template-columns: 200px 1fr auto;
+            align-items: center;
+            padding: 0.5rem 2rem;
+            border-bottom: 1px solid #e0e0e0;
+            background-color: #ffffff;
+            position: sticky;
+            top: 0;
+            z-index: 1020;
+        }
+
+       
+        .logo-brand {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #000;
+        }
+
+            .logo-brand img {
+                height: 35px;
+                margin-right: 12px;
+            }
+
+            .logo-brand span {
+                font-size: 1.6rem;
+                font-weight: bold;
+                text-transform: uppercase;
+                letter-spacing: -1px;
+            }
+
+      
+        .main-menu ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .main-menu a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 0.5rem 0;
+            border-bottom: 2px solid transparent;
+            transition: border-color 0.3s;
+        }
+
+            .main-menu a:hover {
+                border-color: #da291c;
+            }
+
+      
+        .right-contact {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 1.2rem;
+        }
+
+            .right-contact .nav-link {
+                font-size: 1.4rem;
+                color: #333;
+                transition: color 0.2s ease-in-out;
+                padding: 0;
+            }
+
+                .right-contact .nav-link:hover {
+                    color: #da291c;
+                }
+
+      
+        .dropdown-hover {
+            position: relative;
+        }
+
+        .account-dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 10px;
+            display: block;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.2s ease-in-out;
+            min-width: 220px;
+            border-radius: 0.5rem;
+            box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
+            border: 1px solid #eee;
+            padding: 0.5rem;
+            background-color: #fff;
+        }
+
+        .dropdown-hover:hover .account-dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            border-radius: 0.3rem;
+            transition: background-color 0.2s, transform 0.2s;
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+            .dropdown-item:hover, .dropdown-item:focus {
+                background-color: #f8f9fa;
+                transform: translateX(2px);
+            }
+
+      
+        .main-layout-container {
+            display: flex;
+            flex: 1;
+            padding: 2rem;
+            gap: 2rem;
+        }
+
+        .left-menu {
+            flex-basis: 220px;
+            flex-shrink: 0;
+            background-color: #ffffff;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            height: fit-content;
+        }
+
+            .left-menu h4 {
+                font-weight: bold;
+                font-size: 1.1rem;
+                margin-bottom: 1rem;
+                border-bottom: 1px solid #eee;
+                padding-bottom: 0.75rem;
+            }
+
+            .left-menu ul {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+
+            .left-menu li a {
+                display: block;
+                padding: 0.6rem 0;
+                text-decoration: none;
+                color: #555;
+                transition: all 0.2s ease;
+                border-radius: 4px;
+            }
+
+                .left-menu li a:hover {
+                    color: #da291c;
+                    background-color: #f8f9fa;
+                }
+
+        .main-content {
+            flex-grow: 1;
+            background-color: #ffffff;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+     
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            background-color: #343a40;
+            color: #fff;
+            margin-top: auto; /* Đẩy footer xuống cuối */
+        }
+
+      
+        @@media (max-width: 991.98px) {
+            .top-container {
+                grid-template-columns: auto 1fr auto;
+                padding: 0.5rem 1rem;
+            }
+
+            .main-menu, .logo-brand span {
+                display: none;
+            }
+
+            .logo-brand img {
+                height: 28px;
+            }
+
+            .main-layout-container {
+                flex-direction: column;
+                padding: 1rem;
+            }
+        }
+    </style>
+    @* Cho phép trang con chèn CSS riêng *@
+    @RenderSection("Styles", required: false)
 </head>
-<body class="home-bg">
-    <div class="main-wrapper">
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark">
-            <div class="container d-flex align-items-center">
-                <a class="navbar-brand d-flex align-items-center" href="@Url.Action("Index","Home")">
-                    <img src="~/Content/Images/uniqlo-logo.png" alt="UNIQLO" style="height:32px;width:auto;margin-right:8px;" />
-                    <span>UNIQLO</span>
-                </a>
-                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" title="Toggle navigation" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link" })</li>
+<body>
+    @using Microsoft.AspNet.Identity
+
+    <div class="page-container">
+        <header class="top-container">
+            <a href="@Url.Action("Index", "Home")" class="logo-brand">
+                <img src="~/Content/Images/uniqlo-logo.png" alt="Uniqlo Logo" />
+                <span>UNIQLO</span>
+            </a>
+
+            <nav class="main-menu">
+                <ul>
+                    <li><a href="@Url.Action("Index", "Home")">Trang Chủ</a></li>
+                    <li><a href="@Url.Action("MenClothes", "Home")">Nam</a></li>
+                    <li><a href="@Url.Action("WomenClothes", "Home")">Nữ</a></li>
+                    <li><a href="@Url.Action("KidsClothes", "Home")">Trẻ Em</a></li>
+                </ul>
+            </nav>
+
+            <div class="right-contact">
+                @if (Request.IsAuthenticated)
+                {
+                    <ul class="navbar-nav d-flex flex-row align-items-center">
+                        <li class="nav-item">
+                            <a href="@Url.Action("Index","Cart")" class="nav-link position-relative" title="Giỏ hàng">
+                                <i class="bi bi-cart"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-count">0</span>
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown dropdown-hover">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="Tài khoản">
+                                <i class="bi bi-person-circle"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end account-dropdown-menu" aria-labelledby="userDropdown">
+                                <li>
+                                    <span class="dropdown-item disabled text-muted" title="@User.Identity.GetUserName()">
+                                        <i class="bi bi-person me-2"></i>
+                                        Xin chào @User.Identity.GetUserName()!
+                                    </span>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a href="@Url.Action("Index", "Manage")" class="dropdown-item" title="Quản lý tài khoản">
+                                        <i class="bi bi-gear me-2"></i>
+                                        Quản lý tài khoản
+                                    </a>
+                                </li>
+                                <li>
+                                    @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <a class="dropdown-item" href="javascript:document.getElementById('logoutForm').submit()" title="Đăng xuất">
+                                            <i class="bi bi-box-arrow-right me-2"></i>
+                                            Đăng xuất
+                                        </a>
+                                    }
+                                </li>
+                            </ul>
+                        </li>
                     </ul>
-                    @Html.Partial("_LoginPartial")
-                </div>
+                }
+                else
+                {
+                    <ul class="navbar-nav d-flex flex-row align-items-center">
+                        <li class="nav-item">
+                            <a href="@Url.Action("Register", "Account")" id="registerLink" class="nav-link" title="Đăng ký">
+                                <i class="bi bi-person-plus"></i>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="@Url.Action("Login", "Account")" id="loginLink" class="nav-link" title="Đăng nhập">
+                                <i class="bi bi-box-arrow-in-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                }
             </div>
-        </nav>
-        <div class="container body-content">
-            @RenderBody()
-            <hr />
-        </div>
+        </header>
+
+        @RenderSection("Banner", required: false)
+        @RenderSection("Slideshow", required: false)
+
+        <main class="main-layout-container">
+            <aside class="left-menu">
+                <h4>Sản Phẩm</h4>
+                <ul>
+                    <li><a href="#">Áo Thun & Polo</a></li>
+                    <li><a href="#">Áo Sơ Mi</a></li>
+                    <li><a href="#">Quần Jeans</a></li>
+                    <li><a href="#">Quần Kaki</a></li>
+                    <li><a href="#">Váy & Đầm</a></li>
+                    <li><a href="#">Đồ Mặc Ngoài</a></li>
+                    <li><a href="#">Phụ Kiện</a></li>
+                </ul>
+            </aside>
+
+            <div class="main-content">
+                @RenderBody()
+            </div>
+        </main>
     </div>
-    <footer class="text-center py-3 bg-dark text-light">
-        <p class="mb-0">&copy; @DateTime.Now.Year - UNIQLO | @Html.ActionLink("About", "About", "Home") | @Html.ActionLink("Contact", "Contact", "Home")</p>
+
+    <footer>
+        <p>&copy; @DateTime.Now.Year - UNIQLO</p>
     </footer>
 
-    @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/bootstrap")
-    @RenderSection("scripts", required: false)
+    @* jQuery (cần cho các script hiện tại) *@
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+    @* Bootstrap 5 bundle *@
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    @* Render section Scripts duy nhất để tránh lỗi trùng lặp *@
+    @RenderSection("Scripts", required: false)
 </body>
 </html>
